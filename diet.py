@@ -74,37 +74,34 @@ for i in range( len(alunos) ):
         print(f"{nutrientes[j]:<{12}}", end=": ")
         print (linha)
         A += [linha]
+
     print()
-        
     
     b = necessidades_nutricionais.iloc[:,i].tolist()
+
+    for i in range( len(b) ):
+        b[i] *= unidade_necessidades_nutricionais[i]
 
     print("b: ", end = "")
     print(b)
     print()
 
-    # print(A)
+    print(c)
 
-    # Limites das variáveis (gastos em alimentos não podem ser negativos)
-    # Restrição de orçamento máximo
-    A_eq = [[1, 1, 1, 1, 1, 1, 1, 1, 1]]  # Gasto total para 9 alimentos
-    b_eq = [20]  # Orçamento máximo de $20
+    # Bounds for each variable (default is (0, None) for non-negative variables)
+    x_bounds = [(0, None)] * 9  # Non-negative decision variables
 
-    # Limites das variáveis (cada uma entre 0 e infinito)
-    bounds = [(0, None)] * 9  # Uma tupla para cada variável
+    # Solve the linear programming problem
+    res = linprog(c, A_ub=A, b_ub=b, bounds=x_bounds, method='highs')
 
-    # Resolver o problema usando o método simplex
-    res = linprog(c, A_ub=A, b_ub=b, bounds=bounds, method='simplex')
-
-    # Resultado
+    # Display the results
     if res.success:
-        print("Solução ótima encontrada!")
-        for i, gasto in enumerate(res.x):
-            print(f"Gasto com alimento {i+1}: {gasto:.2f} dólares")
-        print(f"Nutrição maximizada: {-res.fun:.2f}")
+        print("Optimal solution found:")
+        print(f"x = {res.x}")
+        print(f"Optimal value: {res.fun}")
     else:
-        print("Não foi possível encontrar uma solução ótima.")
+        print("No optimal solution found.")
 
-    print("\n\n--------")
+
 
         
